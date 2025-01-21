@@ -1,13 +1,20 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse, type NextRequest } from "next/server";
 
-const isPublicRoute = createRouteMatcher(["/sign-in(.*)"]);
+// Define public routes
+const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 
-export default clerkMiddleware((auth, req: NextRequest) => {
+export default clerkMiddleware(async (auth, req: NextRequest) => {
     if (!isPublicRoute(req)) {
-        const result = auth.protect();
-        // Ensure the result is wrapped in a NextResponse
-        return NextResponse.next();
+        try {
+            // Protect private routes, ensuring only authenticated users can access
+            await auth.protect();
+        } catch (error) {
+            // Redirect to sign-in page if authentication fails
+            const signInUrl = new URL("/sign-in", req.url);
+            signInUrl.searchParams.set("redirect_url", req.url); // Optional: Pass the original URL for redirection after sign-in
+            return NextResponse.redirect(signInUrl);
+        }
     }
     // Allow public routes to proceed
     return NextResponse.next();
