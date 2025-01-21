@@ -20,7 +20,7 @@ const MobileNav = () => {
         </Link>
         <nav className='flex gap-2'>
             <SignedIn>
-                <UserButton afterSignOutUrl='/'></UserButton>
+                <UserButton ></UserButton>
                   <Sheet>
                       <SheetTrigger>
                           <Image src="/assets/icons/menu.svg" alt="menu" width={32} height={32} className='cursor-pointer'></Image>
