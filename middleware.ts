@@ -1,26 +1,27 @@
 import { NextResponse } from 'next/server';
 
-// Custom Clerk Middleware Mock
-const customClerkMiddleware = async (req: Request) => {
+export default async function middleware(req: Request) {
     try {
-        // If Clerk integration is needed, validate the request here (optional for Edge)
-        // Add your custom logic or pass requests directly.
+        const { pathname } = new URL(req.url);
+
+        // Add custom logic based on pathname or headers
+        console.log(`Incoming request to: ${pathname}`);
+
+        // Proceed to the next middleware or handler
         return NextResponse.next();
     } catch (error) {
-        console.error('Clerk Middleware Error:', error);
-        return NextResponse.error();
-    }
-};
+        console.error('Middleware Error:', error);
 
-export default async function middleware(req: Request) {
-    return customClerkMiddleware(req);
+        // Return a 500 error if the middleware encounters an issue
+        return new NextResponse('Internal Server Error', { status: 500 });
+    }
 }
 
 export const config = {
     matcher: [
-        // Skip Next.js internals and all static files, unless found in search params
+        // Match all paths except Next.js internals and static assets
         '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-        // Always run for API routes
+        // Always run middleware for API routes
         '/(api|trpc)(.*)',
     ],
 };
